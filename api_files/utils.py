@@ -1,3 +1,4 @@
+"""Mheshimiwa api helper functions."""
 from .app import api, db, app
 from .models import Constituency, County, Representative
 from sqlalchemy import func
@@ -31,7 +32,7 @@ def fetch_all_county_constituencies(county_name):
 
 
 def fetch_specific_constituency(constituency):
-    """Fetch the details of select constituency"""
+    """Fetch the details of select constituency."""
     selected_const = constituency.replace("+", " ")
     constituency = db.session.query(Constituency.constituency_number,
                                          Constituency.constituency_name,
@@ -46,7 +47,7 @@ def fetch_specific_constituency(constituency):
 
 
 def fetch_specific_county(county_name):
-    """Fetch the details of select constituency"""
+    """Fetch the details of select constituency."""
     selected_county_name = county_name.replace("+", " ")
     county = db.session.query(County.county_number, \
                              County.county, \
@@ -62,7 +63,7 @@ def fetch_specific_county(county_name):
 
 
 def fetch_all_counties():
-    """Get complete list of counties"""
+    """Get complete list of counties."""
     county_list = db.session.query(County.county_number, \
                              County.county, \
                              County.capital, \

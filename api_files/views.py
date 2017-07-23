@@ -1,3 +1,4 @@
+"""Build out Mheshimiwa api entry points and routes."""
 import collections
 from flask import url_for, request
 from flask_restplus import Resource,reqparse
@@ -7,26 +8,24 @@ from . import utils
 constituency_arguments = reqparse.RequestParser()
 constituency_arguments.add_argument('county', type=str, required=False)
 
-@app.route('/howto')
-def index():
-    """Home Page."""
 
-    return 'home page'
-
-
-@api.route('/v2.0/constituencies', endpoint='get_constituencies')
+@api.route('/v0.2/constituencies', endpoint='get_constituencies')
 class ConstituenciesResource(Resource):
+    """Constituencies Details and Resources."""
+
     @api.expect(constituency_arguments, validate=True)
     def get(self):
         """List of Kenyan Constituencies.
         
-        Build a list of Kenyan Constituencies.
-        Available Filter on county.
+        Build a list of Kenyan Constituencies providing Constituency Name, \n
+        County Name, Representative and his/her party.     \n   
+        Available Optional Filter on county (?county='County Name').
         """
         args = constituency_arguments.parse_args(request)
         this_county = args.get('county')
         if this_county:
-            constituencies = utils.fetch_all_county_constituencies(this_county)
+            constituencies = utils.fetch_all_county_constituencies(
+                str(this_county))
             if not constituencies:
                 msg = 'No constituency found for {0}, check format or ' \
                       'detail'.format(this_county)
@@ -40,18 +39,26 @@ class ConstituenciesResource(Resource):
                     ('Constituency', c.constituency_name),
                     ('Representative', c.representative),
                     ('County', c.county),
-                    ('Party', c.party)
+                    ('Party', c.party),
+                    ('uri', url_for('get_constituency',
+                                    constituency=c.constituency_name,
+                                    _external=True))
                 ]) for c in constituencies}
+            constituency_list['items count'] = str(len(constituency_list))
             return constituency_list
 
 
-@api.route('/v2.0/constituencies/<constituency>', endpoint='get_constituency')
+@api.route('/v0.2/constituencies/<constituency>', endpoint='get_constituency')
 class ConstituencyResource(Resource):
+    """Single Constituency Details and Resources."""
+
     def get(self, constituency):
         """Specific Constituency Details.
-        
-        Fetch details of a specific constituency. \n
-        Parameter name is the constituency name.
+
+        Fetch details of a specific constituency, including Constituency 
+        Name, County Name, \n  
+        Representative and his/her party. \n  
+        Required Parameter name is the constituency name.
         """
         constituency = utils.fetch_specific_constituency(constituency)
         if constituency:
@@ -72,12 +79,15 @@ class ConstituencyResource(Resource):
             return {'error': msg}, 404
 
 
-@api.route('/v2.0/counties')
+@api.route('/v0.2/counties')
 class CountiesResource(Resource):
+    """Counties Details and Resources."""
+
     def get(self):
         """List of Kenyan Counties.
 
-        Build a list of Kenyan Counties.
+        Build a list of Kenyan Counties showing County Number, Name, \n 
+        Capital, Area in square kms and elected senator. \n
         No parameters required.
         """
         counties = utils.fetch_all_counties()
@@ -95,13 +105,16 @@ class CountiesResource(Resource):
             return county_list
 
 
-@api.route('/v2.0/counties/<county>', endpoint='get_county')
+@api.route('/v0.2/counties/<county>', endpoint='get_county')
 class CountyResource(Resource):
+    """Single County Details and Resources."""
+
     def get(self, county):
         """Specific County Details.
 
-        Fetch details of a specific constituency. \n
-        Parameter name is the constituency name.
+        Fetch a Kenyan County showing County Number, Name, \n 
+        Capital, Area in square kms and elected senator. \n
+        Required Parameter name is the county name.
         """
         county = utils.fetch_specific_county(county)
         if county:
@@ -113,7 +126,7 @@ class CountyResource(Resource):
                     ('Area (Sq.Km)', str(c.area)),
                     ('county uri', url_for('get_county', county=c.county,
                                     _external=True)),
-                    ('constituencies uri', url_for('get_constituencies',
+                    ('county_constituencies uri', url_for('get_constituencies',
                                         county=c.county, _external=True))
                 ]) for c in county}
             return county_list

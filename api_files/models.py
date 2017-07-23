@@ -1,9 +1,10 @@
-"""Capture Data Details"""
-
+"""Capture Mheshimiwa DataPoints in standard SQLAlchemy data models."""
 from .app import db
 
+
 class Constituency(db.Model):
-    """Constituency Details."""
+    """Kenyan Constituency Static Details."""
+
     __tablename__ = 'constituencies'
     cons_id = db.Column(db.Integer, primary_key=True)
     constituency_number = db.Column(db.String(250), nullable=False,
@@ -13,7 +14,8 @@ class Constituency(db.Model):
 
 
 class County(db.Model):
-    """County Details"""
+    """Kenya County Static Details."""
+
     __tablename__ = 'counties'
     county_id = db.Column(db.Integer, primary_key=True)
     county_number = db.Column(db.String(250), nullable=False, unique=True)
@@ -24,7 +26,8 @@ class County(db.Model):
 
 
 class Representative(db.Model):
-    """Representative Details."""
+    """Parliamentary Representative Details."""
+
     __tablename__ = 'representatives'
     representative_id = db.Column(db.Integer, primary_key=True)
     representative = db.Column(db.String(250), nullable=False)
@@ -35,3 +38,4 @@ class Representative(db.Model):
     party = db.Column(db.String(250), nullable=False)
     is_senate = db.Column(db.Boolean, nullable=False)
     special_interest = db.Column(db.String(250), nullable=False)
+    is_deleted = db.Column(db.Boolean, nullable=False, server_default = '0')
